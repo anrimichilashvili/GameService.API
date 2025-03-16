@@ -10,6 +10,6 @@ namespace GameService.API.Application.Interfaces
 {
     public interface IHubBetService
     {
-        Task<HttpStatusCode> RecordBetAsync(GameRound gameRound, string token);
+        Task<GameResultModel> RecordBetAsync(GameRound gameRound, string token);
     }
 }

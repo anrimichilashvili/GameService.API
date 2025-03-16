@@ -23,9 +23,8 @@ namespace GameService.API.Infrastructure.Services
             _betEndpoint = configuration["HubService:BetEndpoint"];
         }
 
-        public async Task<HttpStatusCode> RecordBetAsync(GameRound gameRound, string token)
+        public async Task<GameResultModel> RecordBetAsync(GameRound gameRound, string token)
         {
-
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var betDto = new
             {
@@ -33,7 +32,8 @@ namespace GameService.API.Infrastructure.Services
                 IsWin = gameRound.IsWin
             };
             var result = await _httpClient.PostAsJsonAsync(_betEndpoint, betDto);
-                return result.StatusCode;
+            var gameResult = await result.Content.ReadFromJsonAsync<GameResultModel>();
+            return gameResult;
 
         }
     }

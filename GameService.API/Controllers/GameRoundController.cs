@@ -1,10 +1,7 @@
 ﻿using GameService.API.Application.Interfaces;
 using GameService.API.Domain.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http;
 
 namespace GameService.API.Controllers
 {
@@ -14,21 +11,23 @@ namespace GameService.API.Controllers
     {
         private readonly IGameSimulator _simulator;
         private readonly IHubBetService _hubBetService;
-        public GameRoundController(IGameSimulator simulator, IHubBetService hubBetService, HttpClient httpClient    )
+        public GameRoundController(IGameSimulator simulator, IHubBetService hubBetService, HttpClient httpClient)
         {
             _simulator = simulator;
             _hubBetService = hubBetService;
         }
 
-        [HttpPost]
-        public async Task<ActionResult> PlayRoundAsync(decimal betAmount,string token)
+        [HttpPost("Play")]
+        public async Task<ActionResult> PlayRoundAsync([FromQuery] decimal betAmount)
         {
+            var token = HttpContext.Request.Headers["Authorization"].ToString();
+
             GameRound round = _simulator.PlayRound(betAmount);
 
-            var result =  await _hubBetService.RecordBetAsync(round,token);
-            if(result==HttpStatusCode.OK)
+            var result = await _hubBetService.RecordBetAsync(round, token);
+            if (result!=null)
                 return Ok(result);
-            else return BadRequest(result);
+            else return BadRequest();
         }
     }
 }
